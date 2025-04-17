@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
-
-(1..20).each { |n| 
+(1..20).each do |n|
   if n % 15 == 0
     puts "FizzBuzz"
   elsif n % 5 == 0
@@ -9,6 +8,6 @@
   elsif n % 3 == 0
     puts "Fizz"
   else
-    puts n.to_s
+    puts n
   end
-}
+end
