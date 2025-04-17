@@ -29,7 +29,7 @@ else
 end
 
 # 表示する月、年を中央でプリント
-puts "#{m}月 #{y}".center(Array.new(7){"  "}.join(" ").length, " ")
+puts "#{m}月 #{y}".center(Array.new(7){"  "}.join(" ").length)
 puts "日 月 火 水 木 金 土"
 
 date = Date.new(y, m, 1)
