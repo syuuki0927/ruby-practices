@@ -51,6 +51,4 @@ while date.month == m
 end
 
 # 残りを出力
-unless week_days.empty?
-    puts week_days.join(" ")
-end
+puts week_days.join(" ") unless week_days.empty?
