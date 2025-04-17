@@ -7,8 +7,8 @@ params = ARGV.getopts("m:", "y:")
 
 date = Date.today
 
-m = params['m']
-y = params['y']
+m = params["m"]
+y = params["y"]
 
 # 引数から表示する月を取得
 if m.nil? && y
@@ -29,19 +29,19 @@ else
 end
 
 # 表示する月、年を中央でプリント
-puts "#{m}月 #{y}".center(Array.new(7){'  '}.join(' ').length, ' ')
+puts "#{m}月 #{y}".center(Array.new(7){"  "}.join(" ").length, " ")
 puts "日 月 火 水 木 金 土"
 
 date = Date.new(y, m, 1)
 
 #  最初の行
 # 1日の分までスペース
-week_days = Array.new(date.wday) { '  ' }
+week_days = Array.new(date.wday) { "  " }
 
 # 日付でWhile
 # 同月中
 while date.month == m
-    week_days << date.day.to_s.rjust(2, ' ')
+    week_days << date.day.to_s.rjust(2, " ")
     # puts week_days.length
     if week_days.length >= 7
         puts week_days.join(" ")
