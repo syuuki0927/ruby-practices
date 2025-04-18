@@ -1,54 +1,44 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'optparse'
 require 'date'
 
-params = ARGV.getopts("m:", "y:")
+options = ARGV.getopts('m:', 'y:')
 
-date = Date.today
+today = Date.today
 
-m = params["m"]
-y = params["y"]
+m = options['m']
+y = options['y']
 
-# 引数から表示する月を取得
 if m.nil? && y
-    # 年のみの指定は実装しない
-    raise ArgumentError.new("-yのみの指定は無効です")
+  raise ArgumentError, '-yのみの指定は無効です'
 elsif !m.nil? && y.nil?
-    # 月のみの指定
-    y = date.year
-    m = m.to_i
-elsif !(m.nil?) && !(y.nil?)
-    # 月、日どちらも指定
-    y = y.to_i
-    m = m.to_i
+  y = today.year
+  m = m.to_i
+elsif !m.nil? && !y.nil?
+  y = y.to_i
+  m = m.to_i
 else
-    # 指定なし。今月を出力
-    y = date.year
-    m = date.month
+  y = today.year
+  m = today.month
 end
 
-# 表示する月、年を中央でプリント
-puts "#{m}月 #{y}".center(Array.new(7){"  "}.join(" ").length)
-puts "日 月 火 水 木 金 土"
+# 1週間の日付部分の長さを使用して月、年を中央配置（01は日付に相当）
+puts "#{m}月 #{y}".center(Array.new(7) { '01' }.join(' ').length)
+puts '日 月 火 水 木 金 土'
 
-date = Date.new(y, m, 1)
+first_day = Date.new(y, m, 1)
 
-#  最初の行
-# 1日の分までスペース
-week_days = Array.new(date.wday) { "  " }
+#  最初の行 1日の曜日までスペース
+week_days = Array.new(first_day.wday) { '  ' }
 
-# 日付でWhile
-# 同月中
-while date.month == m
-    week_days << date.day.to_s.rjust(2, " ")
-    # puts week_days.length
-    if week_days.length >= 7
-        puts week_days.join(" ")
-        week_days = []
-    end
-    date = date.next_day
+(first_day..(first_day.next_month - 1)).each do |current_day|
+  week_days << current_day.day.to_s.rjust(2)
+  if week_days.length >= 7
+    puts week_days.join(' ')
+    week_days = []
+  end
 end
 
-# 残りを出力
-puts week_days.join(" ") unless week_days.empty?
+puts week_days.join(' ') unless week_days.empty?
