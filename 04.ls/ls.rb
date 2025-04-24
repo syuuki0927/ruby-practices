@@ -11,7 +11,7 @@ class LS
     end
 
     if entries.length <= COL_NUM
-      puts entries.join('    ')
+      puts entries.join(' ')
     else
       show_multilines(entries)
     end
@@ -19,6 +19,7 @@ class LS
 
   def show_multilines(entries)
     total_lines = (entries.length.to_f / COL_NUM).ceil
+    max_str_length = get_maxstr_length(entries)
 
     show_lines = Array.new(total_lines).map.with_index do |_, line_i|
       entries.select.with_index do |_, entry_index|
@@ -26,25 +27,16 @@ class LS
       end
     end
 
-    max_str_lengths = Array.new(COL_NUM).map.with_index do |_, col_i|
-      col_entries = show_lines.map do |line|
-        line[col_i]
-      end.compact
-
-      get_colstr_maxlength(col_entries)
-    end
-
     show_lines.each do |line|
-      line_str = line.map.with_index do |file_name, col_i|
-        file_name.ljust(max_str_lengths[col_i])
-      end.join('    ')
+      line_str = line.map do |file_name|
+        file_name.ljust(max_str_length + 1)
+      end.join
 
       puts line_str
     end
   end
 
-  # 表示する各列の最大の文字列の長さを返す
-  def get_colstr_maxlength(str_array)
+  def get_maxstr_length(str_array)
     str_array.map(&:length).max
   end
 end
