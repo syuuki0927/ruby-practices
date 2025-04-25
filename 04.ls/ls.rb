@@ -1,13 +1,22 @@
 # frozen_string_literal: true
 
+require 'optparse'
+
 class LS
   COL_NUM = 3
+  @options = { a: false }
+
+  def initialize(argv)
+    @options = argv.getopts('a')
+  end
 
   def execute
     entries = Dir.entries('.').sort!
 
-    entries = entries.reject do |entry|
-      entry[0] == '.'
+    unless @options[:a]
+      entries = entries.reject do |entry|
+        entry[0] == '.'
+      end
     end
 
     if entries.length <= COL_NUM
@@ -41,5 +50,5 @@ class LS
   end
 end
 
-ls = LS.new
+ls = LS.new(ARGV)
 ls.execute
