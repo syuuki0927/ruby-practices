@@ -13,7 +13,7 @@ class LS
   def execute
     entries = Dir.entries('.').sort!
 
-    unless @options[:a]
+    unless @options['a']
       entries = entries.reject do |entry|
         entry[0] == '.'
       end
