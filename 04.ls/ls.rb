@@ -4,7 +4,6 @@ require 'optparse'
 
 class LS
   COL_NUM = 3
-  @options = { a: false }
 
   def initialize(argv)
     @options = argv.getopts('a')
