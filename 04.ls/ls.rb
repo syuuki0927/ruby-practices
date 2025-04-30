@@ -6,11 +6,13 @@ class LS
   COL_NUM = 3
 
   def initialize(argv)
-    @options = argv.getopts('a')
+    @options = argv.getopts('a', 'r')
   end
 
   def execute
     entries = Dir.entries('.').sort!
+
+    entries.reverse! if @options['r']
 
     unless @options['a']
       entries = entries.reject do |entry|
