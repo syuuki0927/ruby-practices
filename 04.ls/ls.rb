@@ -55,6 +55,8 @@ class LS
     str_array.map(&:length).max
   end
 
+  # 扱うハッシュの要素が多く行数がかさむためdisable
+  # rubocop:disable Metrics/MethodLength
   def long_format(entries)
     entry_info_list = entries.map do |entry|
       entry_abs = File.absolute_path(entry)
@@ -72,11 +74,16 @@ class LS
     puts "total #{block_nums.sum}"
 
     entry_info_list.each do |info|
-      puts [info[:accessibility], info[:hardlink_num].to_s.rjust(get_max_length(entry_info_list, :hardlink_num)),
-            "#{info[:owner].rjust(get_max_length(entry_info_list, :owner))} ", "#{info[:group].rjust(get_max_length(entry_info_list, :group))} ",
-            info[:file_size].to_s.rjust(get_max_length(entry_info_list, :file_size)), info[:datetime_str], info[:file_name]].join(' ')
+      puts [info[:accessibility],
+            info[:hardlink_num].to_s.rjust(get_max_length(entry_info_list, :hardlink_num)),
+            "#{info[:owner].rjust(get_max_length(entry_info_list, :owner))} ",
+            "#{info[:group].rjust(get_max_length(entry_info_list, :group))} ",
+            info[:file_size].to_s.rjust(get_max_length(entry_info_list, :file_size)),
+            info[:datetime_str],
+            info[:file_name]].join(' ')
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def get_max_length(hash_list, key)
     hash_list.map { |hash| hash[key].to_s.length }.max
