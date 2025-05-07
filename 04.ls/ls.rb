@@ -23,10 +23,8 @@ class LS
       end
     end
 
-    return long_format(entries) if @options['l']
-
-    if entries.length <= COL_NUM
-      puts entries.join(' ')
+    if @options['l']
+      long_format(entries)
     else
       show_multilines(entries)
     end
