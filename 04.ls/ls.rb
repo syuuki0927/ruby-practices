@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
 
+FILETYPES = { '01' => 'p', '02' => 'c', '04' => 'd', '06' => 'b', '10' => '-', '12' => 'l', '14' => 's' }.freeze
+PERMISSION_CHARS = %w[r w x].freeze
 class LS
   COL_NUM = 3
 
   def initialize(argv)
-    @options = argv.getopts('a', 'r')
+    @options = argv.getopts('a', 'r', 'l')
   end
 
   def execute
@@ -19,6 +22,8 @@ class LS
         entry[0] == '.'
       end
     end
+
+    return long_format(entries) if @options['l']
 
     if entries.length <= COL_NUM
       puts entries.join(' ')
@@ -48,6 +53,63 @@ class LS
 
   def get_maxstr_length(str_array)
     str_array.map(&:length).max
+  end
+
+  def long_format(entries)
+    entry_info_list = entries.map do |entry|
+      entry_abs = File.absolute_path(entry)
+      { accessibility: get_accessibility(entry_abs),
+        hardlink_num: File.stat(entry_abs).nlink,
+        owner: Etc.getpwuid(File.stat(entry_abs).uid).name,
+        group: Etc.getgrgid(File.stat(entry_abs).gid).name,
+        file_size: File.stat(entry_abs).size,
+        datetime_str: File.stat(entry_abs).mtime.strftime('%_m %e %H:%M'),
+        file_name: entry,
+        block_num: File.stat(entry_abs).blocks }
+    end
+
+    block_nums = entry_info_list.map { |h| h[:block_num] }
+    puts "total #{block_nums.sum}"
+
+    entry_info_list.each do |info|
+      puts [info[:accessibility], info[:hardlink_num].to_s.rjust(get_max_length(entry_info_list, :hardlink_num)),
+            "#{info[:owner].rjust(get_max_length(entry_info_list, :owner))} ", "#{info[:group].rjust(get_max_length(entry_info_list, :group))} ",
+            info[:file_size].to_s.rjust(get_max_length(entry_info_list, :file_size)), info[:datetime_str], info[:file_name]].join(' ')
+    end
+  end
+
+  def get_max_length(hash_list, key)
+    value_list = hash_list.map do |hash|
+      hash[key]
+    end
+
+    str_list = value_list.map(&:to_s)
+    str_list.map(&:length).max
+  end
+
+  def get_accessibility(entry)
+    mode = File.stat(entry).mode.to_s(8).rjust(6, '0')
+    file_type_oct = mode[0..1]
+    file_mode_oct = mode[3..5]
+
+    file_type = FILETYPES[file_type_oct]
+
+    file_mode = file_mode_oct.chars.map do |num_char|
+      number_permission_translator(num_char.to_i)
+    end
+
+    file_type + file_mode.join
+  end
+
+  def number_permission_translator(num)
+    num_str = num.to_s(2).rjust(3, '0')
+    permission_char_array = num_str.chars.map.with_index do |num_char, num_index|
+      next '-' if num_char == '0'
+
+      PERMISSION_CHARS[num_index]
+    end
+
+    permission_char_array.join
   end
 end
 
