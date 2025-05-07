@@ -26,11 +26,11 @@ class LS
     if @options['l']
       long_format(entries)
     else
-      show_multilines(entries)
+      short_format(entries)
     end
   end
 
-  def show_multilines(entries)
+  def short_format(entries)
     total_lines = (entries.length.to_f / COL_NUM).ceil
     max_str_length = get_maxstr_length(entries)
 
