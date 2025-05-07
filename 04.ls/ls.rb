@@ -79,12 +79,7 @@ class LS
   end
 
   def get_max_length(hash_list, key)
-    value_list = hash_list.map do |hash|
-      hash[key]
-    end
-
-    str_list = value_list.map(&:to_s)
-    str_list.map(&:length).max
+    hash_list.map { |hash| hash[key].to_s.length }.max
   end
 
   def get_accessibility(entry)
