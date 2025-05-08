@@ -67,7 +67,7 @@ class LS
             info[:file_name]].join(' ')
     end
   end
-  
+
   def get_file_info(file_path_abs)
     { accessibility: get_accessibility(file_path_abs),
       hardlink_num: File.stat(file_path_abs).nlink,
