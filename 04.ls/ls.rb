@@ -32,7 +32,7 @@ class LS
 
   def short_format(entries)
     total_lines = (entries.length.to_f / COL_NUM).ceil
-    max_str_length = get_maxstr_length(entries)
+    max_str_length = entries.map(&:length).max
 
     show_lines = Array.new(total_lines).map.with_index do |_, line_i|
       entries.select.with_index do |_, entry_index|
@@ -49,23 +49,9 @@ class LS
     end
   end
 
-  def get_maxstr_length(str_array)
-    str_array.map(&:length).max
-  end
-
-  # 扱うハッシュの要素が多く行数がかさむためdisable
-  # rubocop:disable Metrics/MethodLength
   def long_format(entries)
     entry_info_list = entries.map do |entry|
-      entry_abs = File.absolute_path(entry)
-      { accessibility: get_accessibility(entry_abs),
-        hardlink_num: File.stat(entry_abs).nlink,
-        owner: Etc.getpwuid(File.stat(entry_abs).uid).name,
-        group: Etc.getgrgid(File.stat(entry_abs).gid).name,
-        file_size: File.stat(entry_abs).size,
-        datetime_str: File.stat(entry_abs).mtime.strftime('%_m %e %H:%M'),
-        file_name: entry,
-        block_num: File.stat(entry_abs).blocks }
+      get_file_info(File.absolute_path(entry))
     end
 
     block_nums = entry_info_list.map { |h| h[:block_num] }
@@ -81,7 +67,17 @@ class LS
             info[:file_name]].join(' ')
     end
   end
-  # rubocop:enable Metrics/MethodLength
+  
+  def get_file_info(file_path_abs)
+    { accessibility: get_accessibility(file_path_abs),
+      hardlink_num: File.stat(file_path_abs).nlink,
+      owner: Etc.getpwuid(File.stat(file_path_abs).uid).name,
+      group: Etc.getgrgid(File.stat(file_path_abs).gid).name,
+      file_size: File.stat(file_path_abs).size,
+      datetime_str: File.stat(file_path_abs).mtime.strftime('%_m %e %H:%M'),
+      file_name: File.basename(file_path_abs),
+      block_num: File.stat(file_path_abs).blocks }
+  end
 
   def get_max_length(hash_list, key)
     hash_list.map { |hash| hash[key].to_s.length }.max
