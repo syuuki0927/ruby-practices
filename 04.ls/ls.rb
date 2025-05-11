@@ -23,18 +23,16 @@ class LS
       end
     end
 
-    return long_format(entries) if @options['l']
-
-    if entries.length <= COL_NUM
-      puts entries.join(' ')
+    if @options['l']
+      long_format(entries)
     else
-      show_multilines(entries)
+      short_format(entries)
     end
   end
 
-  def show_multilines(entries)
+  def short_format(entries)
     total_lines = (entries.length.to_f / COL_NUM).ceil
-    max_str_length = get_maxstr_length(entries)
+    max_str_length = entries.map(&:length).max
 
     show_lines = Array.new(total_lines).map.with_index do |_, line_i|
       entries.select.with_index do |_, entry_index|
@@ -51,40 +49,38 @@ class LS
     end
   end
 
-  def get_maxstr_length(str_array)
-    str_array.map(&:length).max
-  end
-
   def long_format(entries)
     entry_info_list = entries.map do |entry|
-      entry_abs = File.absolute_path(entry)
-      { accessibility: get_accessibility(entry_abs),
-        hardlink_num: File.stat(entry_abs).nlink,
-        owner: Etc.getpwuid(File.stat(entry_abs).uid).name,
-        group: Etc.getgrgid(File.stat(entry_abs).gid).name,
-        file_size: File.stat(entry_abs).size,
-        datetime_str: File.stat(entry_abs).mtime.strftime('%_m %e %H:%M'),
-        file_name: entry,
-        block_num: File.stat(entry_abs).blocks }
+      get_file_info(File.absolute_path(entry))
     end
 
     block_nums = entry_info_list.map { |h| h[:block_num] }
     puts "total #{block_nums.sum}"
 
     entry_info_list.each do |info|
-      puts [info[:accessibility], info[:hardlink_num].to_s.rjust(get_max_length(entry_info_list, :hardlink_num)),
-            "#{info[:owner].rjust(get_max_length(entry_info_list, :owner))} ", "#{info[:group].rjust(get_max_length(entry_info_list, :group))} ",
-            info[:file_size].to_s.rjust(get_max_length(entry_info_list, :file_size)), info[:datetime_str], info[:file_name]].join(' ')
+      puts [info[:accessibility],
+            info[:hardlink_num].to_s.rjust(get_max_length(entry_info_list, :hardlink_num)),
+            "#{info[:owner].rjust(get_max_length(entry_info_list, :owner))} ",
+            "#{info[:group].rjust(get_max_length(entry_info_list, :group))} ",
+            info[:file_size].to_s.rjust(get_max_length(entry_info_list, :file_size)),
+            info[:datetime_str],
+            info[:file_name]].join(' ')
     end
   end
 
-  def get_max_length(hash_list, key)
-    value_list = hash_list.map do |hash|
-      hash[key]
-    end
+  def get_file_info(file_path_abs)
+    { accessibility: get_accessibility(file_path_abs),
+      hardlink_num: File.stat(file_path_abs).nlink,
+      owner: Etc.getpwuid(File.stat(file_path_abs).uid).name,
+      group: Etc.getgrgid(File.stat(file_path_abs).gid).name,
+      file_size: File.stat(file_path_abs).size,
+      datetime_str: File.stat(file_path_abs).mtime.strftime('%_m %e %H:%M'),
+      file_name: File.basename(file_path_abs),
+      block_num: File.stat(file_path_abs).blocks }
+  end
 
-    str_list = value_list.map(&:to_s)
-    str_list.map(&:length).max
+  def get_max_length(hash_list, key)
+    hash_list.map { |hash| hash[key].to_s.length }.max
   end
 
   def get_accessibility(entry)
