@@ -3,18 +3,26 @@
 require_relative 'shot'
 
 class Frame
+  attr_reader :shots, :marks
+
   def initialize(first_mark, second_mark = 0, third_mark = nil)
     @marks = [first_mark, second_mark, third_mark]
-    @shots = marks.map { |mark| Shot.new(mark) }
+    @shots = @marks.map { |mark| Shot.new(mark) }
+
+    # strike?, spare?は@shots[0..1]に依存
+    if strike?
+      @bonus = @shots[1..2].map(&:score).sum
+      @marks = [@marks[0]]
+      @shots = [@shots[0]]
+    else
+      @bonus = spare? ? @shots[2].score : 0
+      @marks = @marks[0..1]
+      @shots = @shots[0..1]
+    end
   end
 
   def score
-    shot_scores = @shots.map(&:score)
-    if strike? || spare?
-      shot_scores.sum
-    else
-      shot_scores[0..1].sum
-    end
+    @shots.map(&:score).sum + @bonus
   end
 
   def strike?
@@ -22,21 +30,6 @@ class Frame
   end
 
   def spare?
-    !strike? && @shots[0..1].sum == 10
-  end
-
-  def shot_num
-    strike? ? 1 : 2
-  end
-
-  def self.create_frames(scores_str)
-    frames = []
-    throw_cnt = 0
-    while frames.length < 10 && throw_cnt < scores_str.length
-      frames << Frame.new(*scores_str[throw_cnt..throw_cnt + 2])
-      throw_cnt += frames[-1].shot_num
-    end
-
-    frames
+    !strike? && @shots[0..1].map(&:score).sum == 10
   end
 end
