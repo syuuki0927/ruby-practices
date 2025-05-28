@@ -8,35 +8,38 @@ class FileInfo
 
   def initialize(file_name)
     @file_name = file_name
-    @abs_path = File.absolute_path(file_name)
+  end
+
+  def abs_path
+    File.absolute_path(@file_name)
   end
 
   def hardlink_num
-    File.stat(@abs_path).nlink
+    File.stat(abs_path).nlink
   end
 
   def owner
-    Etc.getpwuid(File.stat(@abs_path).uid).name
+    Etc.getpwuid(File.stat(abs_path).uid).name
   end
 
   def group
-    Etc.getgrgid(File.stat(@abs_path).gid).name
+    Etc.getgrgid(File.stat(abs_path).gid).name
   end
 
   def file_size
-    File.stat(@abs_path).size
+    File.stat(abs_path).size
   end
 
   def datetime_str
-    File.stat(@abs_path).mtime.strftime('%_m %e %H:%M')
+    File.stat(abs_path).mtime.strftime('%_m %e %H:%M')
   end
 
   def block_num
-    File.stat(@abs_path).blocks
+    File.stat(abs_path).blocks
   end
 
   def accessibility
-    mode = File.stat(@abs_path).mode.to_s(8).rjust(6, '0')
+    mode = File.stat(abs_path).mode.to_s(8).rjust(6, '0')
     file_type_oct = mode[0..1]
     file_mode_oct = mode[3..5]
 
@@ -48,6 +51,8 @@ class FileInfo
 
     file_type + file_mode.join
   end
+
+  private
 
   def number_permission_translator(num)
     num_str = num.to_s(2).rjust(3, '0')
