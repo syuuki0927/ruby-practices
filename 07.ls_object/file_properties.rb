@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FileInfo
+class FileProperties
   FILETYPES = { '01' => 'p', '02' => 'c', '04' => 'd', '06' => 'b', '10' => '-', '12' => 'l', '14' => 's' }.freeze
   PERMISSION_CHARS = %w[r w x].freeze
 

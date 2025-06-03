@@ -2,7 +2,7 @@
 
 require 'optparse'
 require 'etc'
-require_relative 'file_info'
+require_relative 'file_properties'
 require_relative 'display_string'
 
 class Ls
@@ -24,10 +24,10 @@ class Ls
     entries = entries.reverse if @options[:r]
 
     @entries = entries.map do |entry_name|
-      file_info = FileInfo.new(entry_name).extend(DisplayString)
-      file_info.display_string = file_info.file_name
+      file_props = FileProperties.new(entry_name).extend(DisplayString)
+      file_props.display_string = file_props.file_name
 
-      file_info
+      file_props
     end
     @col_num = 3
   end
