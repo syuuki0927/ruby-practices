@@ -1,55 +1,32 @@
 # frozen_string_literal: true
 
 require 'optparse'
-require 'etc'
-require_relative 'file_properties'
-require_relative 'display_string'
+require_relative 'ls_long_output'
+require_relative 'ls_short_output'
 
 class Ls
   def initialize(argv)
     @options = {}
-    @option_parser ||= OptionParser.new
+    @option_parser = OptionParser.new
     @option_parser.on('-a') { |v| @options[:a] = v }
     @option_parser.on('-r') { |v| @options[:r] = v }
-
+    @option_parser.on('-l') { |v| @options[:l] = v }
     @option_parser.parse(argv)
 
-    entries = Dir.entries('.').sort
+    @entries = Dir.entries('.').sort
     unless @options[:a]
-      entries = entries.reject do |entry|
+      @entries = @entries.reject do |entry|
         entry[0] == '.'
       end
     end
-
-    entries = entries.reverse if @options[:r]
-
-    @entries = entries.map do |entry_name|
-      file_props = FileProperties.new(entry_name).extend(DisplayString)
-      file_props.display_string = file_props.file_name
-
-      file_props
-    end
-    @col_num = 3
+    @entries = @entries.reverse if @options[:r]
   end
 
   def execute
-    total_lines = (@entries.length.to_f / @col_num).ceil
-    max_str_length = @entries.map do |entry|
-      entry.display_string.length
-    end.max
-
-    show_lines = Array.new(total_lines).map.with_index do |_, line_i|
-      @entries.select.with_index do |_, entry_index|
-        entry_index % total_lines == line_i
-      end
-    end
-
-    show_lines.each do |line|
-      line_str = line.map do |line_entry|
-        line_entry.display_string.ljust(max_str_length + 1)
-      end.join
-
-      puts line_str
+    if @options[:l]
+      LsLongOutput.new(@entries).output
+    else
+      LsShortOutput.new(@entries).output
     end
   end
 end

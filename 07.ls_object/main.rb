@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'ls_long'
+require_relative 'ls'
 
-ls = LsLong.new(ARGV)
+ls = Ls.new(ARGV)
 ls.execute
