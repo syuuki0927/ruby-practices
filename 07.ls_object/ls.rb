@@ -7,11 +7,11 @@ require_relative 'ls_short_output'
 class Ls
   def initialize(argv)
     @options = {}
-    @option_parser = OptionParser.new
-    @option_parser.on('-a') { |v| @options[:a] = v }
-    @option_parser.on('-r') { |v| @options[:r] = v }
-    @option_parser.on('-l') { |v| @options[:l] = v }
-    @option_parser.parse(argv)
+    option_parser = OptionParser.new
+    option_parser.on('-a') { |v| @options[:a] = v }
+    option_parser.on('-r') { |v| @options[:r] = v }
+    option_parser.on('-l') { |v| @options[:l] = v }
+    option_parser.parse(argv)
 
     @entries = Dir.entries('.').sort
     unless @options[:a]
