@@ -23,10 +23,8 @@ class Ls
   end
 
   def execute
-    if @options[:l]
-      LsLongOutput.new(@entries).output
-    else
-      LsShortOutput.new(@entries).output
-    end
+    output = @options[:l] ? LsLongOutput : LsShortOutput
+
+    output.new(@entries).output
   end
 end
